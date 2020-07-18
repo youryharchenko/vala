@@ -38,15 +38,7 @@ public class GomokuSimple : Gtk.Application {
 
 	private void init_widgets() {
 		vbox = new Box(Orientation.VERTICAL, 0);
-		/*
-		vbox.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK |
-            Gdk.EventMask.BUTTON_RELEASE_MASK);
 
-        vbox.button_release_event.connect((evt)=> {
-            stdout.printf("vbox mouse click x:%f, y:%f\n", evt.x, evt.y);
-            return true;
-        });
-		*/
 		Toolbar tbar = new Toolbar();
 		ToolButton tb_quit = new ToolButton(null, "Quit");
 		tb_quit.clicked.connect((button)=>{
@@ -77,15 +69,7 @@ public class GomokuSimple : Gtk.Application {
 		tbar.add(tb_new);
 
 		desk = new Desk();
-		/*
-		desk.add_events (Gdk.EventMask.ENTER_NOTIFY_MASK |
-            Gdk.EventMask.BUTTON_RELEASE_MASK);
-
-        desk.button_release_event.connect((evt)=> {
-            stdout.printf("desk mouse click x:%f, y:%f\n", evt.x, evt.y);
-            return true;
-        });
-		*/
+		
 		sbar = new Statusbar();
 		sbar.push(0, "Ready");
 
@@ -138,7 +122,7 @@ public class GomokuSimple : Gtk.Application {
 
 	protected override void activate () {
 		// Create the window of this application and show it
-		window = new Gtk.ApplicationWindow (this);
+		window = new ApplicationWindow (this);
 		window.set_default_size (800, 850);
 		window.title = "Gomoku Simple";
 		window.delete_event.connect(() => {
