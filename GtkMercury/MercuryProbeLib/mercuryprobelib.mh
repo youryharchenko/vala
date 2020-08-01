@@ -1,0 +1,49 @@
+/*
+** Automatically generated from `mercuryprobelib.m'
+** by the Mercury compiler,
+** version 20.06-1~focal1
+** configured for x86_64-pc-linux-gnu.
+** Do not edit.
+*/
+#ifndef MERCURYPROBELIB_MH
+#define MERCURYPROBELIB_MH
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef MR_HIGHLEVEL_CODE
+#include "mercury.h"
+#else
+  #ifndef MERCURY_HDR_EXCLUDE_IMP_H
+  #include "mercury_imp.h"
+  #endif
+#endif
+#ifdef MR_DEEP_PROFILING
+#include "mercury_deep_profiling.h"
+#endif
+
+#ifndef MERCURYPROBELIB_DECL_GUARD
+#define MERCURYPROBELIB_DECL_GUARD
+#ifdef MR_HIGHLEVEL_CODE
+    extern MR_Integer GLOBAL;
+#else
+    extern MR_Word GLOBAL;
+#endif
+#ifdef MR_THREAD_SAFE
+    extern MercuryLock GLOBAL_lock;
+#endif
+
+
+#endif
+void mercuryprobelib__user_init_pred_0(void);
+void mercuryprobelib__user_init_pred_1(void);
+void mercuryprobelib__user_final_pred_0(void);
+void write_hello(void);
+void write_global_value(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* MERCURYPROBELIB_MH */

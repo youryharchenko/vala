@@ -9,7 +9,8 @@
 #     src/main.vala \
 #     -o builddir/BouncingBall
 
-mkdir -p builddir/GomokuBase@exe/src
-cp $HOME/.vala/inc/gomokubaselib-1.0.h builddir/GomokuBase@exe/src/gomokubaselib-1.0.h
+mkdir -p builddir/GtkProbe@exe/src
+cp ../MercuryProbeLib/mercuryprobelib_int.h builddir/GtkProbe@exe/src/mercuryprobelib_int.h
+cp ../MercuryProbeLib/mercuryprobelib_int.c src/mercuryprobelib_int.c
 
 ninja -C builddir/

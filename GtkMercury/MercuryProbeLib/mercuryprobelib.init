@@ -1,0 +1,3 @@
+INIT mercury__mercuryprobelib__init
+REQUIRED_INIT mercury__mercuryprobelib__required_init
+REQUIRED_FINAL mercury__mercuryprobelib__required_final

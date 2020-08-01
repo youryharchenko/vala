@@ -1,0 +1,6 @@
+{
+    "sources": [
+        "src"
+    ],
+    "parameters": "valac "
+}

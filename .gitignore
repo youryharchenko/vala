@@ -1,0 +1,8 @@
+*.bak
+*.o
+*.so
+*.a
+*.out
+builddir
+Mercury
+c_main

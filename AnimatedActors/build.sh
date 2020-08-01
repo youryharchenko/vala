@@ -9,7 +9,4 @@
 #     src/main.vala \
 #     -o builddir/BouncingBall
 
-mkdir -p builddir/GomokuBase@exe/src
-cp $HOME/.vala/inc/gomokubaselib-1.0.h builddir/GomokuBase@exe/src/gomokubaselib-1.0.h
-
 ninja -C builddir/
