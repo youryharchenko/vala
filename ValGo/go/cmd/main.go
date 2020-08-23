@@ -9,6 +9,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/tidwall/gjson"
 )
 
 var wg sync.WaitGroup
@@ -55,7 +57,7 @@ func main() {
 
 			go func(c net.Conn) {
 
-				buf := make([]byte, 512)
+				buf := make([]byte, 1024*1024)
 				nr, err := c.Read(buf)
 				if err != nil {
 					log.Println("Read error:", err)
@@ -63,10 +65,13 @@ func main() {
 				}
 
 				data := buf[0:nr]
+
+				cmd := gjson.ParseBytes(data).Get("command").String()
+
 				log.Println("Echo: " + string(data))
 				//in <- string(data)
 
-				c.Write([]byte("OK\n"))
+				c.Write([]byte(fmt.Sprintf(`{"command":"%s", "message":"OK", "status": 0}%s`, cmd, "\n")))
 
 			}(conn)
 		}

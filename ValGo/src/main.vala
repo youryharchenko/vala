@@ -1,12 +1,18 @@
 using GLib;
 using Gtk;
 
+
 public class ValGo : Gtk.Application {
 
+	private JsonUtils<Request> request_utils;
+	private JsonUtils<Response> response_utils;
+
 	private ApplicationWindow window;
-	private HeaderBar headerBar;
+	private HeaderBar header_bar;
 	private Box vbox;
-	private Box hbox;
+	private Paned hbox;
+	private TreeView tree;
+	private Notebook tabs;
 	
 	private Button b_new;
 	private Button b_send;
@@ -21,7 +27,7 @@ public class ValGo : Gtk.Application {
 	//private IOChannel sockOut;
 	//private IOChannel sockIn;
 
-	private UnixSocketAddress sockAddr;
+	private UnixSocketAddress sock_addr;
 	private SocketClient client;
 	private SocketConnection connection;
 	//private OutputStream ostream;
@@ -34,6 +40,9 @@ public class ValGo : Gtk.Application {
 		this.startup.connect(()=>{
 			spawn(".", new string[]{"./service", "--sock=app.sock"});
 		});
+
+		request_utils = new JsonUtils<Request>();
+		response_utils = new JsonUtils<Response>();
 		
 	}
 
@@ -69,7 +78,7 @@ public class ValGo : Gtk.Application {
 
 	private void connect_to_service(string addr) {
 		stdout.printf("connect_to_service: %s\n", addr);
-		sockAddr = new UnixSocketAddress(addr);
+		sock_addr = new UnixSocketAddress(addr);
 		client = new SocketClient();
 		send_to_service("Test connection");
 	}
@@ -79,7 +88,7 @@ public class ValGo : Gtk.Application {
 
 		 
 		try {
-			connection = client.connect(sockAddr);
+			connection = client.connect(sock_addr);
 		} catch (Error ex) {
 			stdout.printf("connect error: %s\n", ex.message);
 		}
@@ -152,16 +161,16 @@ public class ValGo : Gtk.Application {
 	
 	private void init_widgets() {
 		//var imageNew = new Gtk.Image.from_icon_name("tab-new-symbolic", IconSize.SMALL_TOOLBAR); //({ icon_name: 'tab-new-symbolic', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
-    	var imageMenu = new Gtk.Image.from_icon_name("open-menu-symbolic", IconSize.SMALL_TOOLBAR); //({ icon_name: 'open-menu-symbolic', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
+    	var image_menu = new Gtk.Image.from_icon_name("open-menu-symbolic", IconSize.SMALL_TOOLBAR); //({ icon_name: 'open-menu-symbolic', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
     	//var imageSend = new Gtk.Image.from_icon_name("send-to-symbolic", IconSize.SMALL_TOOLBAR); //({ icon_name: 'send-to-symbolic', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
 		//var imageQuit = new Gtk.Image.from_icon_name("process-stop", IconSize.SMALL_TOOLBAR); //({ icon_name: 'process-stop', icon_size: Gtk.IconSize.SMALL_TOOLBAR });
 		
-		headerBar = new HeaderBar();
-		headerBar.set_title("ValGo");
-		headerBar.set_show_close_button(true);
+		header_bar = new HeaderBar();
+		header_bar.set_title("ValGo");
+		header_bar.set_show_close_button(true);
 
-		var headerStart = new Grid();
-		headerStart.column_spacing = headerBar.spacing;
+		var header_start = new Grid();
+		header_start.column_spacing = header_bar.spacing;
 
 		b_new = new Button.from_icon_name("tab-new-symbolic", IconSize.SMALL_TOOLBAR);
 		b_new.clicked.connect((button)=>{
@@ -171,7 +180,10 @@ public class ValGo : Gtk.Application {
 		b_send = new Button.from_icon_name("send-to-symbolic", IconSize.SMALL_TOOLBAR);
 		b_send.clicked.connect((button)=>{
 			stdout.printf("ToolButton 'Send' clicked\n");
-			send_to_service("ToolButton 'Send' clicked");
+			var req = new Request("test");
+			var str = send_to_service(request_utils.marshal(req));
+			var resp = response_utils.unmarshal(str);
+			stdout.printf("ToolButton response:%s\n", resp.to_string());
 		});
 		
 		b_quit = new Button.from_icon_name("process-stop", IconSize.SMALL_TOOLBAR);
@@ -181,10 +193,10 @@ public class ValGo : Gtk.Application {
 		});
 		
 		b_menu = new MenuButton();
-		b_menu.set_image(imageMenu);
-		var popMenu = new Popover(null);
-    	b_menu.set_popover(popMenu);
-		popMenu.set_size_request(-1, -1);
+		b_menu.set_image(image_menu);
+		var pop_menu = new Popover(null);
+    	b_menu.set_popover(pop_menu);
+		pop_menu.set_size_request(-1, -1);
 		
 		var model = new GLib.Menu();
 
@@ -194,40 +206,69 @@ public class ValGo : Gtk.Application {
 		section.append("Send", "app.send");
 		section.append("Send2", "app.send2");
 			
-		var actionSend = new GLib.SimpleAction("send", null);
-		actionSend.activate.connect(() => {
+		var action_send = new GLib.SimpleAction("send", null);
+		action_send.activate.connect(() => {
 			stdout.printf("Menu Item 'Send' clicked\n");
 			send_to_service("Message sent from menu (№;%?%*(* МТЬБбюью))");
 		});
-		add_action(actionSend);
+		add_action(action_send);
 	
-		var actionSend2 = new GLib.SimpleAction("send2", null);
-		actionSend2.activate.connect(() => {
+		var action_send2 = new GLib.SimpleAction("send2", null);
+		action_send2.activate.connect(() => {
 			stdout.printf("Menu Item 'Send2' clicked\n");
 			send_to_service("Message sent 2 from menu (ЄєєЇЇавіі)");
 		});
-		add_action(actionSend2);
+		add_action(action_send2);
 	
 		model.append_section(null, section);
 
-		headerStart.attach(b_new, 0, 0, 1, 1);
-    	headerStart.attach(b_send, 1, 0, 1, 1);
-		headerStart.attach(b_quit, 2, 0, 1, 1);
+		header_start.attach(b_new, 0, 0, 1, 1);
+    	header_start.attach(b_send, 1, 0, 1, 1);
+		header_start.attach(b_quit, 2, 0, 1, 1);
 		
-		headerBar.pack_start(headerStart);
-		headerBar.pack_end(b_menu);
+		header_bar.pack_start(header_start);
+		header_bar.pack_end(b_menu);
 
 		vbox = new Box(Orientation.VERTICAL, 0);
-		hbox = new Box(Orientation.HORIZONTAL, 0);
+		hbox = new Paned(Orientation.HORIZONTAL);
 		
+		// Statusnar - 
 		sbar = new Statusbar();
 		sbar.push(0, "Ready");
 
-		vbox.pack_start(hbox, false, false, 0);
+		// Explorer - 
+		var tree_store = new TreeStore(1,  typeof(string));
+        	
+		TreeIter root;
+		tree_store.append (out root, null);
+		tree_store.set (root, 0, "Root", -1);
+
+		tree = new TreeView.with_model(tree_store);
+   	 	tree.insert_column_with_attributes (-1, "TreeView", new CellRendererText(), "text", 0, null);
+
+		var tree_win = new ScrolledWindow(null, null);
+		tree_win.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
+		tree_win.add(tree);
+		hbox.pack1(tree_win, true, false);
+
+		// Notebook - 
+		tabs = new Notebook();
+		
+		var text_view = new TextView();
+		text_view.margin = 5;
+		tabs.append_page(text_view, new Label("Untitled"));
+
+		var tabs_win = new ScrolledWindow(null, null);
+		tabs_win.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
+		tabs_win.add(tabs);
+		hbox.pack2(tabs_win, true, false);
+
+
+		vbox.pack_start(hbox, true, true, 0);
 
 		vbox.pack_start(sbar, false, false, 0);
 		window.add (vbox);
-		window.set_titlebar(headerBar);
+		window.set_titlebar(header_bar);
 
 	}
 
